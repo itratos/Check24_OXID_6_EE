@@ -586,7 +586,7 @@ class testsieger_opentrans_orderimport extends oxUBase {
             $filename_with_path = '/outbound/' . $filename;
 
             //echo "scanning remote file $filename_with_path\n\n";
-            if (false ===strpos($filename_with_path,'-ORDER.xml')) {
+            if (false === stripos($filename_with_path,'-order.xml')) {
                 // $this->msglog("Skipping $filename_with_path");
                 continue;
             }
@@ -597,7 +597,9 @@ class testsieger_opentrans_orderimport extends oxUBase {
                 continue;
             }
 
-            if (in_array(basename($filename_with_path).'.xml', $this->get_archived_filenames(true))) {
+            if (in_array(basename($filename_with_path).'.xml', $this->get_archived_filenames(true))
+                || in_array(basename($filename_with_path).'.XML', $this->get_archived_filenames(true))
+            ) {
                 $this->msglog("Skipping download of already archived $filename_with_path");
                 continue;
             }
@@ -706,7 +708,7 @@ class testsieger_opentrans_orderimport extends oxUBase {
      */
     protected function get_order_filenames($basename_only = false) {
 
-        $filelist = GLOB( $this->get_xml_inbound_path() . '*-ORDER.xml' );
+        $filelist = GLOB( $this->get_xml_inbound_path() . '*-ORDER.[xX][mM][lL]' );
 
         if (!is_array($filelist)) $filelist = array();
 
@@ -728,7 +730,7 @@ class testsieger_opentrans_orderimport extends oxUBase {
      */
     protected function get_archived_filenames($basename_only) {
 
-        $filelist = GLOB( $this->get_xml_inbound_path() . 'archive/*-ORDER.xml' );
+        $filelist = GLOB( $this->get_xml_inbound_path() . 'archive/*-ORDER.[xX][mM][lL]' );
 
         if (!is_array($filelist)) $filelist = array();
 
@@ -781,7 +783,6 @@ class testsieger_opentrans_orderimport extends oxUBase {
     /**
      * Set lock to prevent concurrent execution.
      *
-     * @throws rs_opentrans_exception('Unable to establish concurrency lock file.');
      */
     protected function concurrency_lock_set() {
 
@@ -1299,7 +1300,8 @@ class testsieger_opentrans_orderimport extends oxUBase {
             "testsieger_shippingtype" => "209e2257a0175dcabcdbec468a624668"
         );
         $sTestFile = getShopBasePath() . "tmp/2015-04-06-09-28-06_TS-2015-538651-1-8337-ORDER.xml";
-        if (file_exists($sTestFile)) {
+        $sTestFileALT = getShopBasePath() . "tmp/2015-04-06-09-28-06_TS-2015-538651-1-8337-ORDER.XML";
+        if (file_exists($sTestFile) or file_exists($sTestFileALT)) {
             copy($sTestFile, $this->get_xml_inbound_path() . basename($sTestFile));
             $this->process_xml_file($this->get_xml_inbound_path() . basename($sTestFile), $aConfig);
         }
